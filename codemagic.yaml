@@ -14,8 +14,16 @@ workflows:
     scripts:
       - name: Set up Firebase config files
         script: |
-          echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
-          echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          if [ -n "$FIREBASE_OPTIONS_DART" ]; then
+            echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
+          else
+            echo "FIREBASE_OPTIONS_DART not set; using committed fallback firebase_options.dart"
+          fi
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          else
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; skipping GoogleService-Info.plist override"
+          fi
       - name: Get Flutter packages
         script: flutter pub get
       - name: Generate Pigeon code
@@ -55,8 +63,16 @@ workflows:
     scripts:
       - name: Set up Firebase config files
         script: |
-          echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
-          echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          if [ -n "$FIREBASE_OPTIONS_DART" ]; then
+            echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
+          else
+            echo "FIREBASE_OPTIONS_DART not set; using committed fallback firebase_options.dart"
+          fi
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          else
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; skipping GoogleService-Info.plist override"
+          fi
       - name: Get Flutter packages
         script: flutter pub get
       - name: Generate Pigeon code
@@ -96,8 +112,16 @@ workflows:
     scripts:
       - name: Set up Firebase config files
         script: |
-          echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
-          echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          if [ -n "$FIREBASE_OPTIONS_DART" ]; then
+            echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
+          else
+            echo "FIREBASE_OPTIONS_DART not set; using committed fallback firebase_options.dart"
+          fi
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          else
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; skipping GoogleService-Info.plist override"
+          fi
       - name: Get Flutter packages
         script: flutter pub get
       - name: Generate Pigeon code
