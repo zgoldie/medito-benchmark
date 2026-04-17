@@ -195,13 +195,17 @@ workflows:
           fi
       - name: Get Flutter packages
         script: flutter pub get
+      - name: Initialize codegen state
+        script: echo "1" > .cm_codegen_skipped
       - name: Generate Pigeon code
         script: |
           if ! git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
             echo "No previous commit available; running Pigeon codegen."
+            echo "0" > .cm_codegen_skipped
             flutter pub run pigeon --input pigeon_conf.dart --package_name=medito
           elif git diff --name-only HEAD~1..HEAD | grep -Eq '(^pigeon_conf\.dart$|^lib/.*\.dart$|^pubspec\.yaml$)'; then
             echo "Detected Pigeon-related changes; running Pigeon codegen."
+            echo "0" > .cm_codegen_skipped
             flutter pub run pigeon --input pigeon_conf.dart --package_name=medito
           else
             echo "No Pigeon-related changes detected; skipping Pigeon codegen."
@@ -210,27 +214,50 @@ workflows:
         script: |
           if ! git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
             echo "No previous commit available; running build_runner codegen."
+            echo "0" > .cm_codegen_skipped
             dart run build_runner build --delete-conflicting-outputs
           elif git diff --name-only HEAD~1..HEAD | grep -Eq '(^lib/.*\.dart$|^pubspec\.yaml$|^build\.yaml$)'; then
             echo "Detected build_runner-related changes; running build_runner codegen."
+            echo "0" > .cm_codegen_skipped
             dart run build_runner build --delete-conflicting-outputs
           else
             echo "No build_runner-related changes detected; skipping build_runner codegen."
           fi
       - name: Build iOS (release, no codesign)
         script: |
-          flutter build ios --release --no-codesign \
-            --dart-define=APP_KEY=benchmark \
-            --dart-define=ENVIRONMENT=prod \
-            --dart-define=CONTENT_BASE_URL=https://example.com \
-            --dart-define=AUTH_URL=https://example.com \
-            --dart-define=EDIT_STATS_URL=https://example.com \
-            --dart-define=DONATION_BASE_URL=https://example.com \
-            --dart-define=DONATION_TOKEN=benchmark \
-            --dart-define=SUPERWALL_API_KEY=benchmark \
-            --dart-define=PAYWALL_ENV=live \
-            --dart-define=FACEBOOK_APP_ID=benchmark \
-            --dart-define=FACEBOOK_CLIENT_TOKEN=benchmark \
-            --dart-define=ENABLE_DEVICE_PREVIEW=false
+          build_ios() {
+            flutter build ios --release --no-codesign \
+              --dart-define=APP_KEY=benchmark \
+              --dart-define=ENVIRONMENT=prod \
+              --dart-define=CONTENT_BASE_URL=https://example.com \
+              --dart-define=AUTH_URL=https://example.com \
+              --dart-define=EDIT_STATS_URL=https://example.com \
+              --dart-define=DONATION_BASE_URL=https://example.com \
+              --dart-define=DONATION_TOKEN=benchmark \
+              --dart-define=SUPERWALL_API_KEY=benchmark \
+              --dart-define=PAYWALL_ENV=live \
+              --dart-define=FACEBOOK_APP_ID=benchmark \
+              --dart-define=FACEBOOK_CLIENT_TOKEN=benchmark \
+              --dart-define=ENABLE_DEVICE_PREVIEW=false
+          }
+
+          if build_ios; then
+            exit 0
+          fi
+
+          codegen_skipped="0"
+          if [ -f .cm_codegen_skipped ]; then
+            codegen_skipped="$(< .cm_codegen_skipped)"
+          fi
+
+          if [ "$codegen_skipped" = "1" ]; then
+            echo "Initial build failed after skipping codegen; running fallback generators and retrying once."
+            flutter pub run pigeon --input pigeon_conf.dart --package_name=medito
+            dart run build_runner build --delete-conflicting-outputs
+            build_ios
+          else
+            echo "Build failed and codegen was not skipped; not retrying."
+            exit 1
+          fi
     artifacts:
       - build/ios/iphoneos/*.app
