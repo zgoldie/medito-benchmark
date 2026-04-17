@@ -163,3 +163,56 @@ workflows:
             --dart-define=ENABLE_DEVICE_PREVIEW=false
     artifacts:
       - build/ios/iphoneos/*.app
+
+  ios-build-m2-optimized:
+    name: M2 Optimized
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.41.6
+      xcode: 26.3
+      groups:
+        - firebase_config
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ~/Library/Caches/CocoaPods
+        - ios/Pods
+    scripts:
+      - name: Set up Firebase config files
+        script: |
+          if [ -n "$FIREBASE_OPTIONS_DART" ]; then
+            echo "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
+          else
+            echo "FIREBASE_OPTIONS_DART not set; using committed fallback firebase_options.dart"
+          fi
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
+          else
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; writing placeholder plist for benchmark builds"
+            printf '%s\n' \
+              '<?xml version="1.0" encoding="UTF-8"?>' \
+              '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+              '<plist version="1.0">' \
+              '<dict/>' \
+              '</plist>' > ios/Runner/GoogleService-Info.plist
+          fi
+      - name: Get Flutter packages
+        script: flutter pub get
+      - name: Build iOS (release, no codesign)
+        script: |
+          flutter build ios --release --no-codesign \
+            --dart-define=APP_KEY=benchmark \
+            --dart-define=ENVIRONMENT=prod \
+            --dart-define=CONTENT_BASE_URL=https://example.com \
+            --dart-define=AUTH_URL=https://example.com \
+            --dart-define=EDIT_STATS_URL=https://example.com \
+            --dart-define=DONATION_BASE_URL=https://example.com \
+            --dart-define=DONATION_TOKEN=benchmark \
+            --dart-define=SUPERWALL_API_KEY=benchmark \
+            --dart-define=PAYWALL_ENV=live \
+            --dart-define=FACEBOOK_APP_ID=benchmark \
+            --dart-define=FACEBOOK_CLIENT_TOKEN=benchmark \
+            --dart-define=ENABLE_DEVICE_PREVIEW=false
+    artifacts:
+      - build/ios/iphoneos/*.app
