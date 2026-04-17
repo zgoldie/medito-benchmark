@@ -22,7 +22,14 @@ workflows:
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
             echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
           else
-            echo "GOOGLE_SERVICE_INFO_PLIST not set; skipping GoogleService-Info.plist override"
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; writing placeholder plist for benchmark builds"
+            cat > ios/Runner/GoogleService-Info.plist <<'EOF'
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict/>
+            </plist>
+            EOF
           fi
       - name: Get Flutter packages
         script: flutter pub get
@@ -71,7 +78,14 @@ workflows:
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
             echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
           else
-            echo "GOOGLE_SERVICE_INFO_PLIST not set; skipping GoogleService-Info.plist override"
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; writing placeholder plist for benchmark builds"
+            cat > ios/Runner/GoogleService-Info.plist <<'EOF'
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict/>
+            </plist>
+            EOF
           fi
       - name: Get Flutter packages
         script: flutter pub get
@@ -120,7 +134,14 @@ workflows:
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
             echo "$GOOGLE_SERVICE_INFO_PLIST" > ios/Runner/GoogleService-Info.plist
           else
-            echo "GOOGLE_SERVICE_INFO_PLIST not set; skipping GoogleService-Info.plist override"
+            echo "GOOGLE_SERVICE_INFO_PLIST not set; writing placeholder plist for benchmark builds"
+            cat > ios/Runner/GoogleService-Info.plist <<'EOF'
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict/>
+            </plist>
+            EOF
           fi
       - name: Get Flutter packages
         script: flutter pub get
