@@ -174,7 +174,6 @@ workflows:
       cache_paths:
         - ~/.pub-cache
         - ~/Library/Caches/CocoaPods
-        - ios/Pods
     scripts:
       - name: Set up Firebase config files
         script: |
