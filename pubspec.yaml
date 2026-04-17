@@ -93,6 +93,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+dependency_overrides:
+  # Temporary CI unblock: keep stripe_ios aligned with Podfile.lock's Stripe 25.6.x.
+  stripe_ios: 12.3.0
+
 flutter:
   generate: true
   assets:
